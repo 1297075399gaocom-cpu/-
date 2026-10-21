@@ -1,0 +1,63 @@
+/**
+ * 【核心重点注释】C++ 底层高性能任务管理程序实现
+ * 原理说明：演示 C++ 如何直接调用底层数据库 API、管理系统内存及执行 SQL。
+ */
+
+#include <iostream>
+#include <string>
+#include <sqlite3.h> // 【核心重点注释】引入 SQLite 官方提供的 C 语言底层数据库头文件
+
+// 【核心重点注释】SQLite 查询回调函数：每当底层数据库检索到一行数据时，就会自动触发该函数
+static int queryCallback(void* data, int argc, char** argv, char** azColName) {
+    // 循环遍历当前行的所有列，将字段名与对应的值打印到终端
+    for (int i = 0; i < argc; i++) {
+        std::cout << azColName[i] << " = " << (argv[i] ? argv[i] : "NULL") << "\n";
+    }
+    std::cout << "-----------------------------------\n";
+    return 0; // 返回 0 表示继续处理下一行
+}
+
+int main() {
+    sqlite3* db;              // 【核心重点注释】声明一个指向数据库文件的指针句柄
+    char* errorMessage = nullptr; // 用于接收底层传回的错误信息指针
+
+    // 【核心重点注释】1. 打开或创建 SQLite 数据库文件（底层由操作系统文件系统 API 处理）
+    int rc = sqlite3_open("tasks.db", &db);
+    if (rc != SQLITE_OK) {
+        std::cerr << "无法打开数据库: " << sqlite3_errmsg(db) << std::endl;
+        sqlite3_close(db);
+        return 1;
+    }
+    std::cout << "【C++底层】成功连接 SQLite 数据库\n";
+
+    // 【核心重点注释】2. 编写并执行 SQL 语句在底层创建 tasks 表
+    const char* sqlCreateTable = 
+        "CREATE TABLE IF NOT EXISTS tasks ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "title TEXT NOT NULL, "
+        "completed BOOLEAN DEFAULT 0);";
+
+    // sqlite3_exec 是底层核心执行函数：参数依次为 数据库句柄、SQL语句、回调函数、回调参数、错误指针
+    rc = sqlite3_exec(db, sqlCreateTable, nullptr, nullptr, &errorMessage);
+    if (rc != SQLITE_OK) {
+        std::cerr << "SQL 建表失败: " << errorMessage << std::endl;
+        sqlite3_free(errorMessage); // 【核心重点注释】C++ 手动释放底层分配的错误字符串内存，防止内存泄漏
+    } else {
+        std::cout << "【C++底层】数据表检查/创建成功\n";
+    }
+
+    // 【核心重点注释】3. 执行 SQL 查询语句并触发回调函数打印所有任务
+    const char* sqlSelect = "SELECT * FROM tasks;";
+    std::cout << "\n--- 当前数据库中的任务列表 ---\n";
+    rc = sqlite3_exec(db, sqlSelect, queryCallback, nullptr, &errorMessage);
+    if (rc != SQLITE_OK) {
+        std::cerr << "查询失败: " << errorMessage << std::endl;
+        sqlite3_free(errorMessage);
+    }
+
+    // 【核心重点注释】4. 关闭数据库连接，释放底层文件句柄与系统内存
+    sqlite3_close(db);
+    std::cout << "【C++底层】数据库连接已安全关闭。\n";
+    
+    return 0;
+}

@@ -1,0 +1,24 @@
+{
+  /* 【核心重点注释】项目名称：定义当前全栈学习项目的英文代号 */
+  "name": "fullstack-learning",
+
+  /* 【核心重点注释】版本号：遵循语义化版本规范 (主版本.次版本.修订号) */
+  "version": "1.0.0",
+
+  /* 【核心重点注释】程序入口文件：指定当运行 npm start 时默认寻找的主文件 */
+  "main": "server.js",
+
+  /* 【核心重点注释】脚本命令：定义快捷指令，输入 npm start 等同于运行 node server.js */
+  "scripts": {
+      "start": "node server.js"
+   },
+
+  /* 【核心重点注释】生产依赖包：项目运行必须的第三方核心库及版本号 */
+  "dependencies": {
+      /* 【核心重点注释】Express 框架：用于快速搭建 Web 服务器、处理路由与中间件 */
+      "express": "^4.18.2",
+
+      /* 【核心重点注释】SQLite3 驱动：用于在 Node.js 中操作 SQLite 数据库 */
+      "sqlite3": "^5.1.6"
+  }
+}

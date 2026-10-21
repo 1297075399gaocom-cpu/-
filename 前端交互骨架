@@ -31,5 +31,66 @@
       <h1>任务列表 (GET 读取)</h1>
       <!-- 【核心重点注释】数据展示区：一开始显示“加载中...”，等下会用 JS 动态替换 -->
       <ul id="taskList">加载中...</ul>
+       <script>
+        // 【核心重点注释】当 DOM 树解析完成后，立即触发 fetchTasks 初始化获取列表数据
+        document.addEventListener("DOMContentLoaded", fetchTasks);
+
+        // 【核心重点注释】核心函数 1：通过 Async/Await 异步发起 GET 请求获取任务数据
+        async function fetchTasks() {
+          try {
+            // 1. 向后端 /api/tasks 发起网络 GET 请求
+            const response = await fetch('/api/tasks');
+            
+            // 2. 解析服务器返回的 JSON 数据流为 JS 数组
+            const tasks = await response.json();
+
+            // 3. 获取前端 ul 列表容器并清空“加载中...”占位符
+            const list = document.getElementById('taskList');
+            list.innerHTML = ''; 
+
+            // 4. 遍历任务数组，动态创建 li 节点并渲染到 UI 界面上
+            tasks.forEach(task => {
+              const li = document.createElement('li');
+              li.textContent = task.title;
+              list.appendChild(li);
+            });
+          } catch (error) {
+            console.error('获取列表失败:', error);
+          }
+        }
+
+        // 【核心重点注释】核心函数 2：发送 POST 请求向后端添加新任务
+        async function addTask() {
+          const input = document.getElementById('taskInput');
+          const title = input.value.trim();
+
+          // 前端基础校验：防止用户提交空白内容
+          if (!title) {
+              alert('请先输入任务名称！');
+              return;
+          }
+
+          try {
+            // 核心：使用 fetch 发送 POST 请求
+            const response = await fetch('/api/tasks', {
+              method: 'POST', // 指定 HTTP 方法为 POST
+              headers: {
+                'Content-Type': 'application/json' // 告知后端发送的是 JSON 格式
+              },
+              body: JSON.stringify({ title: title }) // 将 JS 对象序列化为 JSON 字符串
+            });
+
+            if (response.ok) {
+               input.value = '';   // 清空输入框
+               fetchTasks();       // 重新加载列表，更新 UI 界面（已修正原代码中的拼写错误 fecthTasks）
+            } else {
+              const errorData = await response.json();
+              alert('添加失败: ' + errorData.error);
+            }
+          } catch (error) {
+            console.error('提交失败：', error);
+          }
+        }
+      </script>
  </body>
 </html>

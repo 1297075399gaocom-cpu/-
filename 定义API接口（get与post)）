@@ -1,0 +1,37 @@
+// 【核心重点注释】定义 GET 路由：当前端发起 GET /api/tasks 请求时触发
+app.get('/api/tasks',(req,res)=>{
+  //从数据库中查询所有任务记录
+  db.all('SELECT * FROM tasks',[],(err,rows)=>{
+    if (err) {
+      // 【核心重点注释】如果数据库查询报错，返回 500 服务器内部错误状态码
+      return res.status(500).json({error: err.message});
+    }
+    // 【核心重点注释】将查询到的数据库记录（数组）以 JSON 格式响应给前端
+    res.json(rows);
+  });
+});
+// 【核心重点注释】定义 POST 路由：当前端提交新任务时触发
+app.post('/api/tasks', (req, res) => {
+   // 1. 从前端发来的请求体中解构出任务标题
+   const { title } = req.body;
+
+   // 【核心重点注释】服务端数据校验：防止用户恶意提交空内容
+   if (!title || title.trim() === '') {
+     return res.status(400).json({ error: 'Please enter title' });
+   }
+
+   // 2. 编写 SQL 插入语句（使用 ? 占位符，这是防范 SQL 注入的核心安全机制）
+   const sql = 'INSERT INTO tasks (title) VALUES (?)';
+   
+   db.run(sql, [title], function(err) {
+     if (err) {
+       return res.status(500).json({ error: err.message });
+     }
+     
+     // 【核心重点注释】3. 返回 201 状态码（代表创建成功），并把新记录的 ID 和内容传回前端
+     res.status(201).json({
+       id: this.lastID,
+       title: title,
+       completed: 0
+     });
+   });

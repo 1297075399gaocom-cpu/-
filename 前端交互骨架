@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+ <head>
+   <meta charset="utf-8">
+   <title>全栈开发学习 - 任务列表</title>
+   <style>
+     /* 【核心重点注释】全局样式：设定居中、最大宽度和舒适的间距，让页面不至于太宽 */
+     body { font-family: sans-serif; max-width: 500px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+     
+     /* 【核心重点注释】弹性布局：用 Flexbox 让输入框和按钮在一行内左右排列，间距 10px */
+     .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+     
+     /* 【核心重点注释】输入框自适应：flex: 1 表示输入框会自动撑满剩下的所有空间 */
+     input[type="text"] { flex: 1; padding: 8px; font-size: 16px; }
+     
+     /* 【核心重点注释】按钮与列表美化：设置点击手势指针，以及列表项的底部分割线 */
+     button { padding: 8px 16px; cursor: pointer; }
+     ul { list-style: none; padding: 0; }
+     li { padding: 8px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; }
+   </style>
+ </head>
+ <body>
+      <h1>任务管理系统</h1>
+
+      <!-- 【核心重点注释】用户交互区：一个文本输入框和一个触发添加任务的按钮 -->
+      <div class="input-group">
+         <input type="text" id="taskInput" placeholder="请输入新任务名称...">
+         <button onclick="addTask()">添加任务</button>
+      </div>
+
+      <h1>任务列表 (GET 读取)</h1>
+      <!-- 【核心重点注释】数据展示区：一开始显示“加载中...”，等下会用 JS 动态替换 -->
+      <ul id="taskList">加载中...</ul>
+ </body>
+</html>
